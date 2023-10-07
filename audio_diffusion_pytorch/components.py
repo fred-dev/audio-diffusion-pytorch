@@ -108,7 +108,7 @@ def UNetV0(
         print("Time conditioning plugin added")
         
     if use_MultiCCVariableConditioning:
-        UNetV0 = MultiCCVariableConditioningPlugin(UNetV0, embedding_features, cat_dims, cat_idxs, cat_emb_dims, group_matrix)
+        UNetV0 = MultiCCVariableConditioningPlugin(UNetV0, cc_embedding_features, cat_dims, cat_idxs, cat_emb_dims, group_matrix)
     # Build
     return UNetV0(
         dim=dim,
