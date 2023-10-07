@@ -1,7 +1,13 @@
 import sys
+from typing import List
+import platform
+
+if platform.system() == 'Windows':
+    path_to_audio_a_unet = 'C:\\Users\\Fred_Rack_PC\\Collectivism Dropbox\\Fred Rodrigues\\Code\\OF_GITT\\openFrameworks\\apps\\Synthetic_ornithology\\a-unet'
+else:
+    path_to_audio_a_unet = '/Users/fredrodrigues/Collectivism Dropbox/Fred Rodrigues/Code/OF_GITT/openFrameworks/apps/Synthetic_ornithology/a-unet'
 
 # Replace 'path_to_audio_a_unet' with the actual paths
-path_to_audio_a_unet = 'C:\\Users\\Fred_Rack_PC\\Collectivism Dropbox\\Fred Rodrigues\\Code\\OF_GITT\\openFrameworks\\apps\\Synthetic_ornithology\\a-unet'
 
 # Add the library directories to sys.path
 sys.path.append(path_to_audio_a_unet)
@@ -65,6 +71,11 @@ def UNetV0(
     num_cc_variables: int = 6,
     use_cc_embedding_cfg : bool = False,
     out_channels: Optional[int] = None,
+    cc_embedding_features :int= 10,
+    cat_dims: List[int] = [5, 3],
+    cat_idxs: List[int] = [0, 1],
+    cat_emb_dims: List[int] = [2, 1],
+    group_matrix: List[int] = torch.rand(10, 10),
 ):
     # Set defaults and check lengths
     num_layers = len(channels)
@@ -97,7 +108,7 @@ def UNetV0(
         print("Time conditioning plugin added")
         
     if use_MultiCCVariableConditioning:
-        UNetV0 = MultiCCVariableConditioningPlugin(UNetV0)
+        UNetV0 = MultiCCVariableConditioningPlugin(UNetV0, embedding_features, cat_dims, cat_idxs, cat_emb_dims, group_matrix)
     # Build
     return UNetV0(
         dim=dim,
