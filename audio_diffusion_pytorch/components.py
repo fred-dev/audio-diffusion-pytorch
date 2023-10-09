@@ -1,29 +1,12 @@
-import sys
-from typing import List
-import platform
-
-if platform.system() == 'Windows':
-    path_to_audio_a_unet = 'C:\\Users\\Fred_Rack_PC\\Collectivism Dropbox\\Fred Rodrigues\\Code\\OF_GITT\\openFrameworks\\apps\\Synthetic_ornithology\\a-unet'
-else:
-    path_to_audio_a_unet = '/Users/fredrodrigues/Collectivism Dropbox/Fred Rodrigues/Code/OF_GITT/openFrameworks/apps/Synthetic_ornithology/a-unet'
-
-# Replace 'path_to_audio_a_unet' with the actual paths
-
-# Add the library directories to sys.path
-sys.path.append(path_to_audio_a_unet)
-
-
 from typing import Callable, Optional, Sequence
 
 import torch
 import torch.nn.functional as F
 from a_unet import (
     ClassifierFreeGuidancePlugin,
-    ClassifierFreeGuidancePluginCCVariables,
     Conv,
     Module,
     TextConditioningPlugin,
-    MultiCCVariableConditioningPlugin,
     TimeConditioningPlugin,
     default,
     exists,
@@ -67,15 +50,7 @@ def UNetV0(
     use_time_conditioning: bool = True,
     use_embedding_cfg: bool = False,
     use_text_conditioning: bool = False,
-    use_MultiCCVariableConditioning: bool = False,
-    num_cc_variables: int = 6,
-    use_cc_embedding_cfg : bool = False,
     out_channels: Optional[int] = None,
-    cc_embedding_features :int= 10,
-    cat_dims: List[int] = [5, 3],
-    cat_idxs: List[int] = [0, 1],
-    cat_emb_dims: List[int] = [2, 1],
-    group_matrix: List[int] = torch.rand(10, 10),
 ):
     # Set defaults and check lengths
     num_layers = len(channels)
@@ -88,27 +63,18 @@ def UNetV0(
     # Define UNet type
     UNetV0 = XUNet
 
-
-    if use_cc_embedding_cfg:
-        msg = "use_cc_embedding_cfg requires num_cc_variables"
-        assert exists(num_cc_variables), msg
-        UNetV0 = ClassifierFreeGuidancePluginCCVariables(UNetV0, num_cc_variables)
-    
     if use_embedding_cfg:
         msg = "use_embedding_cfg requires embedding_max_length"
         assert exists(embedding_max_length), msg
-        UNetV0 = ClassifierFreeGuidancePlugin(UNetV0, embedding_max_length)   
-    
+        UNetV0 = ClassifierFreeGuidancePlugin(UNetV0, embedding_max_length)
+
     if use_text_conditioning:
         UNetV0 = TextConditioningPlugin(UNetV0)
-    
+
     if use_time_conditioning:
         assert use_modulation, "use_time_conditioning requires use_modulation=True"
         UNetV0 = TimeConditioningPlugin(UNetV0)
-        print("Time conditioning plugin added")
-        
-    if use_MultiCCVariableConditioning:
-        UNetV0 = MultiCCVariableConditioningPlugin(UNetV0, cc_embedding_features, cat_dims, cat_idxs, cat_emb_dims, group_matrix)
+
     # Build
     return UNetV0(
         dim=dim,
