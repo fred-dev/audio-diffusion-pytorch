@@ -2,12 +2,28 @@ from typing import Callable, Optional, Sequence
 
 import torch
 import torch.nn.functional as F
+import sys	
+from typing import List	
+import platform	
+
+if platform.system() == 'Windows':	
+    path_to_audio_a_unet = 'C:\\Users\\Fred_Rack_PC\\Collectivism Dropbox\\Fred Rodrigues\\Code\\OF_GITT\\openFrameworks\\apps\\Synthetic_ornithology\\a-unet'	
+else:	
+    path_to_audio_a_unet = '/Users/fredrodrigues/Collectivism Dropbox/Fred Rodrigues/Code/OF_GITT/openFrameworks/apps/Synthetic_ornithology/a-unet'	
+
+# Replace 'path_to_audio_a_unet' with the actual paths	
+
+# Add the library directories to sys.path	
+sys.path.append(path_to_audio_a_unet)
+
 from a_unet import (
     ClassifierFreeGuidancePlugin,
+    TabularDataClassifierFreeGuidancePlugin,
     Conv,
     Module,
     TextConditioningPlugin,
     TimeConditioningPlugin,
+    TabularDataConditioningPlugin,
     default,
     exists,
 )
@@ -51,6 +67,14 @@ def UNetV0(
     use_embedding_cfg: bool = False,
     use_text_conditioning: bool = False,
     out_channels: Optional[int] = None,
+    use_td_embedding_cfg: bool = False,
+    use_td_conditioning: bool = False,
+    num_td_variables: Optional[int] = None,
+    cat_dims: List[int] = [],
+    cat_idxs: List[int] = [],
+    cat_emb_dims: List[int] = [],
+    group_matrix: List[int] = torch.eye(10),
+    
 ):
     # Set defaults and check lengths
     num_layers = len(channels)
@@ -68,9 +92,18 @@ def UNetV0(
         assert exists(embedding_max_length), msg
         UNetV0 = ClassifierFreeGuidancePlugin(UNetV0, embedding_max_length)
 
+    if use_td_embedding_cfg:
+        msg = "use_td_embedding_cfg requires embedding_max_length"
+        assert exists(embedding_max_length), msg
+        UNetV0 = TabularDataClassifierFreeGuidancePlugin(UNetV0, embedding_max_length)
+
     if use_text_conditioning:
         UNetV0 = TextConditioningPlugin(UNetV0)
-
+        
+    if use_td_conditioning:
+        embedding_features = num_td_variables
+        UNetV0 = TabularDataConditioningPlugin(UNetV0, num_td_variables, cat_dims, cat_idxs, cat_emb_dims, group_matrix)
+        
     if use_time_conditioning:
         assert use_modulation, "use_time_conditioning requires use_modulation=True"
         UNetV0 = TimeConditioningPlugin(UNetV0)
