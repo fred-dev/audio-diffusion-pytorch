@@ -18,12 +18,12 @@ sys.path.append(path_to_audio_a_unet)
 
 from a_unet import (
     ClassifierFreeGuidancePlugin,
-    TabularDataClassifierFreeGuidancePlugin,
     Conv,
     Module,
     TextConditioningPlugin,
-    TimeConditioningPlugin,
+    TabularDataClassifierFreeGuidancePlugin,
     TabularDataConditioningPlugin,
+    TimeConditioningPlugin,
     default,
     exists,
 )
@@ -69,7 +69,7 @@ def UNetV0(
     out_channels: Optional[int] = None,
     use_td_embedding_cfg: bool = False,
     use_td_conditioning: bool = False,
-    num_td_variables: Optional[int] = None,
+    num_td_variables: int = 10,
     cat_dims: List[int] = [],
     cat_idxs: List[int] = [],
     cat_emb_dims: List[int] = [],
