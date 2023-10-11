@@ -38,7 +38,6 @@ class DiffusionModel(nn.Module):
         self.sampler = sampler_t(net=self.net, **sampler_kwargs)
 
     def forward(self, *args, **kwargs) -> Tensor:
-
         return self.diffusion(*args, **kwargs)
 
     @torch.no_grad()

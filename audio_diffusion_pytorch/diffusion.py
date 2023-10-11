@@ -80,6 +80,7 @@ class VDiffusion(Diffusion):
         return alpha, beta
 
     def forward(self, x: Tensor, **kwargs) -> Tensor:  # type: ignore
+        
         batch_size, device = x.shape[0], x.device
         # Sample amount of noise to add for each batch element
         sigmas = self.sigma_distribution(num_samples=batch_size, device=device)
