@@ -38,6 +38,23 @@ class DiffusionModel(nn.Module):
         self.sampler = sampler_t(net=self.net, **sampler_kwargs)
 
     def forward(self, *args, **kwargs) -> Tensor:
+            # Print details about args
+        print("Number of args:", len(args))
+        for i, arg in enumerate(args):
+            if isinstance(arg, torch.Tensor):
+                print(f"arg {i} shape:", arg.shape)
+            else:
+                print(f"arg {i} type:", type(arg))
+                print(f"arg {i} value:", arg)
+
+        # Print details about kwargs
+        print("Number of kwargs:", len(kwargs))
+        for key, value in kwargs.items():
+            if isinstance(value, torch.Tensor):
+                print(f"kwargs '{key}' shape:", value.shape)
+            else:
+                print(f"kwargs '{key}' type:", type(value))
+                print(f"kwargs '{key}' value:", value)
         return self.diffusion(*args, **kwargs)
 
     @torch.no_grad()
